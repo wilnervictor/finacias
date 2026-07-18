@@ -85,7 +85,7 @@ export default function Dashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1 bg-white dark:bg-neutral-900 border border-neutral-200/70 dark:border-neutral-800 rounded-lg px-1 py-1">
             <button
               onClick={() => setSelectedMonth((m) => shiftMonth(m, -1))}
@@ -93,7 +93,7 @@ export default function Dashboard() {
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
-            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200 px-2 min-w-[9.5rem] text-center capitalize">
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200 px-2 min-w-32 sm:min-w-38 text-center capitalize">
               {formatMonthLabel(selectedMonth)}
             </span>
             <button
