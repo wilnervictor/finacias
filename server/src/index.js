@@ -11,6 +11,14 @@ if (!process.env.JWT_SECRET) {
   process.exit(1)
 }
 
+// Rede de segurança: por padrão o Node encerra o processo (derrubando a API
+// pra todo mundo) diante de uma promise rejeitada sem catch. As rotas já
+// usam asyncHandler pra nunca deixar isso acontecer, mas isso aqui evita que
+// um caminho esquecido no futuro tire o servidor do ar.
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled rejection (servidor seguiu rodando):', err)
+})
+
 const app = express()
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')

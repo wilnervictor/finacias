@@ -2,6 +2,7 @@ import { Router } from 'express'
 import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import { query } from '../db.js'
+import { asyncHandler } from '../lib/asyncHandler.js'
 
 const router = Router()
 
@@ -23,26 +24,30 @@ function checkAdminKey(req, res, next) {
   next()
 }
 
-router.post('/set-special-user', checkAdminKey, async (req, res) => {
-  const { email, password } = req.body
+router.post(
+  '/set-special-user',
+  checkAdminKey,
+  asyncHandler(async (req, res) => {
+    const { email, password } = req.body
 
-  if (!email || !password || password.length < 6) {
-    return res.status(400).json({ error: 'Informe email e senha (6+ caracteres).' })
-  }
+    if (!email || !password || password.length < 6) {
+      return res.status(400).json({ error: 'Informe email e senha (6+ caracteres).' })
+    }
 
-  const passwordHash = await bcrypt.hash(password, 10)
-  const { rows } = await query(
-    `update users set email = $1, password_hash = $2
-     where is_special = true
-     returning id, name, email`,
-    [email.trim().toLowerCase(), passwordHash]
-  )
+    const passwordHash = await bcrypt.hash(password, 10)
+    const { rows } = await query(
+      `update users set email = $1, password_hash = $2
+       where is_special = true
+       returning id, name, email`,
+      [email.trim().toLowerCase(), passwordHash]
+    )
 
-  if (rows.length === 0) {
-    return res.status(404).json({ error: 'Nenhum usuário especial encontrado.' })
-  }
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Nenhum usuário especial encontrado.' })
+    }
 
-  res.json({ user: rows[0] })
-})
+    res.json({ user: rows[0] })
+  })
+)
 
 export default router
