@@ -4,6 +4,7 @@ import 'dotenv/config'
 import authRoutes from './routes/auth.js'
 import transactionsRoutes from './routes/transactions.js'
 import clientesRoutes from './routes/clientes.js'
+import adminRoutes from './routes/admin.js'
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET não definido. Configure a variável de ambiente antes de iniciar a API.')
@@ -33,6 +34,7 @@ app.get('/api/health', (req, res) => res.json({ ok: true }))
 app.use('/api/auth', authRoutes)
 app.use('/api/transactions', transactionsRoutes)
 app.use('/api/clientes', clientesRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err)
