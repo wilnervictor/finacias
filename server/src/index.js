@@ -1,10 +1,10 @@
 import express from 'express'
 import cors from 'cors'
+import rateLimit from 'express-rate-limit'
 import 'dotenv/config'
 import authRoutes from './routes/auth.js'
 import transactionsRoutes from './routes/transactions.js'
 import clientesRoutes from './routes/clientes.js'
-import adminRoutes from './routes/admin.js'
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET não definido. Configure a variável de ambiente antes de iniciar a API.')
@@ -20,6 +20,11 @@ process.on('unhandledRejection', (err) => {
 })
 
 const app = express()
+
+// A Render fica atrás de um proxy reverso — sem isso, express-rate-limit
+// enxergaria todo mundo vindo do mesmo IP (o do proxy) e limitaria todos os
+// usuários juntos em vez de por pessoa.
+app.set('trust proxy', 1)
 
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
   .split(',')
@@ -38,11 +43,20 @@ app.use(
 )
 app.use(express.json())
 
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas. Aguarde alguns minutos e tente de novo.' },
+})
+
 app.get('/api/health', (req, res) => res.json({ ok: true }))
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/register', authLimiter)
 app.use('/api/auth', authRoutes)
 app.use('/api/transactions', transactionsRoutes)
 app.use('/api/clientes', clientesRoutes)
-app.use('/api/admin', adminRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err)

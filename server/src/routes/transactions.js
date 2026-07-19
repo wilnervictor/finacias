@@ -13,7 +13,7 @@ function toPublic(row) {
     description: row.description,
     category: row.category,
     amount: Number(row.amount),
-    date: row.date.toISOString().slice(0, 10),
+    date: row.date,
     createdAt: row.created_at,
   }
 }

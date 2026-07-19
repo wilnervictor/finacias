@@ -20,6 +20,7 @@ function toPublicUser(row) {
 function signToken(user) {
   return jwt.sign({ sub: user.id, isSpecial: user.is_special }, process.env.JWT_SECRET, {
     expiresIn: '30d',
+    algorithm: 'HS256',
   })
 }
 
